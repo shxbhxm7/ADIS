@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ADIS</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-header">
+        <h1>Army Digital Information System</h1>
+        <p>Enter your credentials to access the portal</p>
+      </div>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            placeholder="Enter your username"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <div class="password-input">
+            <input
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              required
+            />
+            <button type="button" class="toggle-password" id="togglePassword">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="role">Access Role</label>
+          <select id="role" required>
+            <option value="">-- Select access role --</option>
+            <option value="admin">Administrator</option>
+            <option value="user">Standard User</option>
+          </select>
+        </div>
+
+        <div class="captcha-container" id="captchaContainer">
+          <label for="captchaInput">Enter Captcha</label>
+          <div class="captcha-row">
+            <div class="captcha-display" id="captchaDisplay"></div>
+            <button
+              type="button"
+              class="refresh-captcha"
+              id="refreshCaptcha"
+              title="Generate new code"
+            >
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+          <div class="input-group captcha-input">
+            <input
+              type="text"
+              id="captchaInput"
+              placeholder="Enter the code above"
+              required
+            />
+          </div>
+        </div>
+
+        <button type="submit" class="login-button">Sign In</button>
+      </form>
+
+      <div class="system-notice">
+        <i class="fas fa-shield-alt"></i> This is a secure government system.
+        Unauthorized access is prohibited.
+      </div>
+
+      <div class="footer">
+        <p>Official Government Portal • v3.2.1</p>
+        <p>For assistance, contact IT Support at (555) 123-HELP</p>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // DOM Elements
+        const loginForm = document.getElementById("loginForm");
+        const roleSelect = document.getElementById("role");
+        const captchaContainer = document.getElementById("captchaContainer");
+        const captchaDisplay = document.getElementById("captchaDisplay");
+        const captchaInput = document.getElementById("captchaInput");
+        const refreshCaptchaBtn = document.getElementById("refreshCaptcha");
+        const togglePasswordBtn = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("password");
+
+        // Generate CAPTCHA
+        function generateCaptcha() {
+          const characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+          let captcha = "";
+          for (let i = 0; i < 5; i++) {
+            captcha += characters.charAt(
+              Math.floor(Math.random() * characters.length)
+            );
+          }
+          captchaDisplay.textContent = captcha;
+          captchaInput.value = "";
+          return captcha;
+        }
+
+        let currentCaptcha = generateCaptcha();
+
+        // Toggle CAPTCHA visibility based on role
+        roleSelect.addEventListener("change", function () {
+          if (roleSelect.value === "user") {
+            captchaContainer.style.display = "block";
+            generateCaptcha();
+          } else {
+            captchaContainer.style.display = "none";
+          }
+        });
+
+        // Refresh CAPTCHA
+        refreshCaptchaBtn.addEventListener("click", function () {
+          currentCaptcha = generateCaptcha();
+        });
+
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener("click", function () {
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            togglePasswordBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+          } else {
+            passwordInput.type = "password";
+            togglePasswordBtn.innerHTML = '<i class="fas fa-eye"></i>';
+          }
+        });
+
+        // Form submission
+        loginForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+          const role = document.getElementById("role").value;
+
+          // Validate form
+          if (!username || !password || !role) {
+            alert("Please complete all required fields.");
+            return;
+          }
+
+          // Validate CAPTCHA for users
+          if (role === "user") {
+            if (captchaInput.value !== currentCaptcha) {
+              alert(
+                "Security verification failed. Please check the code and try again."
+              );
+              currentCaptcha = generateCaptcha();
+              return;
+            }
+          }
+
+          // If everything is valid
+          alert("Authentication successful. Welcome, " + username + "!");
+
+          // In a real application, you would send the data to a server here
+          console.log("Login attempted with:", { username, password, role });
+        });
+      });
+    </script>
+  </body>
+</html>
